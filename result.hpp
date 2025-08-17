@@ -26,7 +26,7 @@ template <typename X>
 }  // namespace ds::detail
 
 namespace ds {
-
+// ---------- type definitions ----------
 struct ErrorInfo {
   std::int32_t facility {0};  // generic facility
   std::int32_t error_code {0};
@@ -37,14 +37,24 @@ using Result = std::expected<T, ErrorInfo>;
 
 using Status = Result<std::monostate>;
 
-// ---------- Result<T> helpers ----------
-
-// REVIEW: use `noexcept(noexcept(ds::Result<std::decay_t<T>(std::forward<T>(value))))` and construct Result of `T0` where `using T0 = std::decay_t<T>`
-// REVIEW: add guards  requires (!ds::is_result_v<std::remove_cvref_t<U>> && !ds::is_status_v<std::remove_cvref_t<U>>) to prevent nesting
+// ---------- is_result_v / is_status_v ----------
+template <typename>
+struct is_result : std::false_type {};
+template <typename T>
+struct is_result<ds::Result<T>> : std::true_type {};
+template <typename X>
+inline constexpr bool is_result_v = is_result<std::remove_cvref_t<X>>::value;
 
 template <typename T>
-[[nodiscard]] constexpr inline ds::Result<T> Ok(T&& value) noexcept(std::is_nothrow_move_constructible_v<T>) {
-  return ds::Result<T>(std::forward<T>(value));
+inline constexpr bool is_status_v = std::is_same_v<std::remove_cvref_t<T>, ds::Status>;
+
+// ---------- Result<T> helpers ----------
+template <typename T>
+  requires(!ds::is_result_v<std::remove_cvref_t<T>> && !ds::is_status_v<std::remove_cvref_t<T>>)
+[[nodiscard]] constexpr inline auto Ok(T&& value) noexcept(
+    noexcept(ds::Result<std::decay_t<T>>(std::forward<T>(value)))) -> ds::Result<std::decay_t<T>> {
+  using T0 = std::decay_t<T>;
+  return ds::Result<T0>(std::forward<T>(value));
 }
 
 template <typename T, typename... Args>
@@ -54,9 +64,11 @@ template <typename T, typename... Args>
 }
 
 template <typename T, typename CodeT = std::int32_t, typename FacilityT = std::int32_t>
-  requires((std::is_enum_v<FacilityT> || std::is_integral_v<FacilityT>) &&
+  requires(!ds::is_result_v<std::remove_cvref_t<T>> && !ds::is_status_v<std::remove_cvref_t<T>> &&
+           (std::is_enum_v<FacilityT> || std::is_integral_v<FacilityT>) &&
            (std::is_enum_v<CodeT> || std::is_integral_v<CodeT>))
-[[nodiscard]] constexpr inline ds::Result<T> Err(CodeT code, FacilityT facility = FacilityT {0}) noexcept {
+[[nodiscard]] constexpr inline auto Err(CodeT code, FacilityT facility = FacilityT {0}) noexcept
+    -> ds::Result<std::decay_t<T>> {
   return std::unexpected(ds::ErrorInfo {ds::detail::to_i32(facility), ds::detail::to_i32(code)});
 }
 
@@ -70,20 +82,8 @@ template <typename CodeT = std::int32_t, typename FacilityT = std::int32_t>
 [[nodiscard]] constexpr inline ds::Status Err(CodeT code, FacilityT facility = FacilityT {0}) noexcept {
   return ds::Err<std::monostate>(code, facility);
 }
-}  // namespace ds
 
-namespace ds {
-// ---- is_result / is_status ----
-template <typename>
-struct is_result : std::false_type {};
-template <typename T>
-struct is_result<ds::Result<T>> : std::true_type {};
-template <typename X>
-inline constexpr bool is_result_v = is_result<std::remove_cvref_t<X>>::value;
-
-template <typename T>
-inline constexpr bool is_status_v = std::is_same_v<std::remove_cvref_t<T>, ds::Status>;
-
+// ---------- as_result / as_status helpers
 template <typename R>
   requires ds::is_result_v<R>
 [[nodiscard]] constexpr auto as_result(R&& r) noexcept(noexcept(std::remove_cvref_t<R>(std::forward<R>(r))))
@@ -97,5 +97,4 @@ template <typename S>
     -> std::remove_cvref_t<S> {
   return std::forward<S>(s);
 }
-
 }  // namespace ds

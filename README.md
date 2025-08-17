@@ -150,5 +150,5 @@ A minimal test suite is provided in `./test/test.cpp`:
 # initialize submodules
 make submodule
 # build & run tests
-make test
+make
 ```
