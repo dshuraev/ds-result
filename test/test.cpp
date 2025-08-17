@@ -1,7 +1,7 @@
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 
 #include "doctest/doctest.h"
-#include "ds_result.hpp"
+#include "result.hpp"
 
 enum class Facilities : std::int32_t { general = 0, vulkan = 1 };
 enum class CustomEc : std::int32_t { success = 0, failure = 1 };
