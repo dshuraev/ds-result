@@ -1,0 +1,49 @@
+BasedOnStyle: Google
+Language: Cpp
+IndentWidth: 2
+ColumnLimit: 120
+
+# ---- Alignment ----
+AlignAfterOpenBracket: Align
+AlignArrayOfStructures: Left
+AlignConsecutiveAssignments: AcrossEmptyLinesAndComments
+AlignConsecutiveDeclarations: AcrossEmptyLinesAndComments
+AlignConsecutiveMacros: AcrossEmptyLinesAndComments
+AlignConsecutiveBitFields: AcrossEmptyLinesAndComments # drop if your clang-format is too old
+AlignEscapedNewlines: Left
+AlignOperands: Align
+SpacesBeforeTrailingComments: 2
+
+# ---- Pointers/refs ----
+PointerAlignment: Left
+DerivePointerAlignment: false
+# ReferenceAlignment is supported in newer versions; uncomment if available:
+# ReferenceAlignment: Left
+
+# ---- Binary operators & wrapping ----
+BreakBeforeBinaryOperators: None # keeps '&&' / '||' aligned when broken across lines
+BinPackArguments: false
+BinPackParameters: false
+AllowAllArgumentsOnNextLine: false
+AllowAllParametersOfDeclarationOnNextLine: false
+
+# Constructor initializer alignment
+ConstructorInitializerAllOnOneLineOrOnePerLine: true
+BreakConstructorInitializers: BeforeComma
+PackConstructorInitializers: NextLine
+
+# ---- Comments ----
+AlignTrailingComments: true
+ReflowComments: false
+
+# ---- Preprocessor ----
+IndentPPDirectives: AfterHash
+PPIndentWidth: 2
+
+# ---- Misc ----
+SpaceBeforeAssignmentOperators: true
+SpacesInAngles: Never
+SpaceBeforeCpp11BracedList: true
+SortIncludes: false
+IncludeBlocks: Preserve
+IndentCaseLabels: true
