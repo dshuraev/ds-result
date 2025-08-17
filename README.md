@@ -75,7 +75,7 @@ In short:
 
 ```cpp
 // assuming checkout in ds_result directory
-#include "ds_result/include/ds_result.hpp"
+#include "ds_result/ds_result.hpp"
 ```
 
 ### Types
