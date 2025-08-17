@@ -15,7 +15,7 @@ test: submodule
 clean:
 	rm -rf ./build
 
-ultra-clean:
+ultra-clean: clean
 	rm -rf ./lib
 
 %.o: %.cpp
